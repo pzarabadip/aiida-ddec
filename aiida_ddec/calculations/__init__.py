@@ -74,11 +74,12 @@ class DdecCalculation(CalcJob):
             valid_type=Dict,
             help='Input parameters such as net charge, protocol, atomic densities path, ...',
         )
-        spec.input(
+        spec.input_namespace(
             'charge_density_folder',
             valid_type=RemoteData,
             required=False,
             help='Use a remote folder (for restarts and similar)',
+            dynamic=True
         )
         spec.inputs['metadata']['options']['parser_name'].default = 'ddec'
         spec.inputs['metadata']['options']['resources'].default = {
@@ -98,6 +99,7 @@ class DdecCalculation(CalcJob):
             message='The retrieved folder does not contain an output file.',
         )
         spec.output('structure_ddec', valid_type=CifData, required=True, help='structure with DDEC charges')
+        spec.output('structure_ddec_spin', valid_type=CifData, required=True, help='structure with DDEC atomic spin moments')
 
     def prepare_for_submission(self, folder):
         """Create the input files from the input nodes passed
@@ -125,14 +127,25 @@ class DdecCalculation(CalcJob):
 
         # Charge-density remotefolder (now working only for CP2K)
         if 'charge_density_folder' in self.inputs:
-            charge_density_folder = self.inputs.charge_density_folder
-            comp_uuid = charge_density_folder.computer.uuid
-            remote_path = os.path.join(
-                charge_density_folder.get_remote_path(),
-                'aiida-ELECTRON_DENSITY-1_0.cube',
-            )
-            symlink = (comp_uuid, remote_path, 'valence_density.cube')
-            calcinfo.remote_symlink_list.append(symlink)
+            if 'cp2k' in self.inputs.charge_density_folder:
+                charge_density_folder = self.inputs.charge_density_folder
+                comp_uuid = charge_density_folder.computer.uuid
+                remote_path = os.path.join(
+                    charge_density_folder.get_remote_path(),
+                    'aiida-ELECTRON_DENSITY-1_0.cube',
+                )
+                symlink = (comp_uuid, remote_path, 'valence_density.cube')
+                calcinfo.remote_symlink_list.append(symlink)
+            elif 'vasp' in self.inputs.charge_density_folder:
+                charge_density_folder = self.inputs.charge_density_folder
+                comp_uuid = charge_density_folder.computer.uuid
+                vasp_specific_files = ['AECCAR0', 'AECCAR2', 'CHGCAR', 'POTCAR']
+                for vfile in vasp_specific_files:
+                    remote_path = charge_density_folder.get_remote_path()
+                    symlink = (comp_uuid, remote_path, vfile)
+                    calcinfo.remote_symlink_list.append(symlink)
+            else:
+                raise AttributeError('We currently only support CP2K and VASP generated potential files!')
 
         codeinfo = CodeInfo()
         codeinfo.cmdline_params = []

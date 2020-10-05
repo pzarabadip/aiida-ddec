@@ -51,6 +51,12 @@ class DdecParser(Parser):
                 out_folder._repository._get_base_folder().abspath, 'DDEC6_even_tempered_net_atomic_charges.xyz'
             )
         )
+        output_cif_spin = xyz2cif(
+            os.path.join(
+                out_folder._repository._get_base_folder().abspath, 'DDEC_even_tempered_atomic_spin_moments.xyz'
+            )
+        )
         self.out('structure_ddec', output_cif)
+        self.out('structure_ddec_spin', output_cif_spin)
 
         return ExitCode(0)
