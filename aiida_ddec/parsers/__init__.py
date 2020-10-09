@@ -28,8 +28,9 @@ class DdecParser(Parser):
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         # Check what is inside the folder
-        list_of_files = out_folder._repository.list_object_names()  # pylint: disable=protected-access
-
+        # list_of_files = out_folder._repository.list_object_names()  # pylint: disable=protected-access
+        list_of_files = out_folder.list_object_names()
+        
         output_file = self.node.process_class._DEFAULT_OUTPUT_FILE
 
         # We need at least the output file name as defined in calcs.py

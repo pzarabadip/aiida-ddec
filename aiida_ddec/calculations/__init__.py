@@ -59,7 +59,7 @@ class DdecCalculation(CalcJob):
     """
 
     _DEFAULT_INPUT_FILE = 'job_control.txt'
-    # _DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
+    _DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
     _DEFAULT_ADDITIONAL_RETRIEVE_LIST = '*.xyz'  # pylint: disable=invalid-name
 
     @classmethod
@@ -129,7 +129,7 @@ class DdecCalculation(CalcJob):
             charge_density_folder = self.inputs.charge_density_folder
             comp_uuid = charge_density_folder.computer.uuid
             if 'aiida-ELECTRON_DENSITY-1_0.cube' in self.inputs.charge_density_folder.listdir():
-                self._DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
+                # self._DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
                 remote_path = os.path.join(
                     charge_density_folder.get_remote_path(),
                     'aiida-ELECTRON_DENSITY-1_0.cube',
