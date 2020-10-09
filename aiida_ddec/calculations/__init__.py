@@ -142,8 +142,8 @@ class DdecCalculation(CalcJob):
                 vasp_specific_files = ['AECCAR0', 'AECCAR2', 'CHGCAR', 'POTCAR']
                 for vfile in vasp_specific_files:
                     remote_path = charge_density_folder.get_remote_path()
-                    symlink = (comp_uuid, remote_path, vfile)
-                    calcinfo.remote_symlink_list.append(symlink)
+                    remcopy = (comp_uuid, remote_path, vfile)
+                    calcinfo.remote_copy_list.append(remcopy)
             else:
                 raise AttributeError('We currently only support CP2K and VASP generated potential files!')
 
