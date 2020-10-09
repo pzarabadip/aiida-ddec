@@ -128,7 +128,7 @@ class DdecCalculation(CalcJob):
         # Charge-density remotefolder (now working only for CP2K)
         if 'charge_density_folder' in self.inputs:
             if 'cp2k' in self.inputs.charge_density_folder:
-                charge_density_folder = self.inputs.charge_density_folder
+                charge_density_folder = self.inputs.charge_density_folder['cp2k']
                 comp_uuid = charge_density_folder.computer.uuid
                 remote_path = os.path.join(
                     charge_density_folder.get_remote_path(),
@@ -137,7 +137,7 @@ class DdecCalculation(CalcJob):
                 symlink = (comp_uuid, remote_path, 'valence_density.cube')
                 calcinfo.remote_symlink_list.append(symlink)
             elif 'vasp' in self.inputs.charge_density_folder:
-                charge_density_folder = self.inputs.charge_density_folder
+                charge_density_folder = self.inputs.charge_density_folder['vasp']
                 comp_uuid = charge_density_folder.computer.uuid
                 vasp_specific_files = ['AECCAR0', 'AECCAR2', 'CHGCAR', 'POTCAR']
                 for vfile in vasp_specific_files:
