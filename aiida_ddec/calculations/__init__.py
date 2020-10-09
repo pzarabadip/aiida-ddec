@@ -74,12 +74,11 @@ class DdecCalculation(CalcJob):
             valid_type=Dict,
             help='Input parameters such as net charge, protocol, atomic densities path, ...',
         )
-        spec.input_namespace(
+        spec.input(
             'charge_density_folder',
             valid_type=RemoteData,
             required=False,
-            help='Use a remote folder (for restarts and similar)',
-            dynamic=True
+            help='Use a remote folder (for restarts and similar)'
         )
         spec.inputs['metadata']['options']['parser_name'].default = 'ddec'
         spec.inputs['metadata']['options']['resources'].default = {
@@ -127,23 +126,21 @@ class DdecCalculation(CalcJob):
 
         # Charge-density remotefolder (now working only for CP2K)
         if 'charge_density_folder' in self.inputs:
-            if 'cp2k' in self.inputs.charge_density_folder:
-                charge_density_folder = self.inputs.charge_density_folder['cp2k']
-                comp_uuid = charge_density_folder.computer.uuid
+            charge_density_folder = self.inputs.charge_density_folder
+            comp_uuid = charge_density_folder.computer.uuid
+            if 'aiida-ELECTRON_DENSITY-1_0.cube' in self.inputs.charge_density_folder.listdir():
                 remote_path = os.path.join(
                     charge_density_folder.get_remote_path(),
                     'aiida-ELECTRON_DENSITY-1_0.cube',
                 )
                 symlink = (comp_uuid, remote_path, 'valence_density.cube')
                 calcinfo.remote_symlink_list.append(symlink)
-            elif 'vasp' in self.inputs.charge_density_folder:
-                charge_density_folder = self.inputs.charge_density_folder['vasp']
-                comp_uuid = charge_density_folder.computer.uuid
+            elif 'AECCAR0' in self.inputs.charge_density_folder.listdir():
                 vasp_specific_files = ['AECCAR0', 'AECCAR2', 'CHGCAR', 'POTCAR']
-                for vfile in vasp_specific_files:
-                    remote_path = charge_density_folder.get_remote_path()
-                    remcopy = (comp_uuid, remote_path, vfile)
-                    calcinfo.remote_copy_list.append(remcopy)
+                copy_list = [(comp_uuid, os.path.join(charge_density_folder.get_remote_path(), name), '.')
+                     for name in charge_density_folder.listdir()
+                     if name in vasp_specific_files]
+                calcinfo.remote_copy_list = copy_list
             else:
                 raise AttributeError('We currently only support CP2K and VASP generated potential files!')
 
