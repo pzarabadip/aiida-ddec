@@ -147,7 +147,7 @@ class DdecCalculation(CalcJob):
                 raise AttributeError('We currently only support CP2K and VASP generated potential files!')
         
         calcinfo.retrieve_list = [
-            self._DEFAULT_OUTPUT_FILE,
+            _DEFAULT_OUTPUT_FILE,
             [self._DEFAULT_ADDITIONAL_RETRIEVE_LIST, '.', 0],
         ]
 
