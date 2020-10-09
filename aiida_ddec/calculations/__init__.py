@@ -5,7 +5,7 @@ import os
 from collections import OrderedDict
 import six
 from aiida.engine import CalcJob
-from aiida.orm import Dict
+from aiida.orm import Bool, Dict
 from aiida.orm import RemoteData
 from aiida.common import CalcInfo, CodeInfo
 from aiida.orm.nodes.data.cif import CifData
@@ -60,7 +60,7 @@ class DdecCalculation(CalcJob):
 
     _DEFAULT_INPUT_FILE = 'job_control.txt'
     # _DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
-    _DEFAULT_ADDITIONAL_RETRIEVE_LIST = '*.xyz'  # pylint: disable=invalid-name
+    _DEFAULT_ADDITIONAL_RETRIEVE_LIST = 'DDEC6_even_tempered_net_atomic_charges.xyz'  # pylint: disable=invalid-name
 
     @classmethod
     def define(cls, spec):
@@ -80,6 +80,7 @@ class DdecCalculation(CalcJob):
             required=False,
             help='Use a remote folder (for restarts and similar)'
         )
+        spec.input('spin', valid_type=Bool, default=False, help='Set True if want to have atomic spin moments reported!')
         spec.inputs['metadata']['options']['parser_name'].default = 'ddec'
         spec.inputs['metadata']['options']['resources'].default = {
             'num_machines': 1,
@@ -98,7 +99,7 @@ class DdecCalculation(CalcJob):
             message='The retrieved folder does not contain an output file.',
         )
         spec.output('structure_ddec', valid_type=CifData, required=True, help='structure with DDEC charges')
-        spec.output('structure_ddec_spin', valid_type=CifData, required=True, help='structure with DDEC atomic spin moments')
+        spec.output('structure_ddec_spin', valid_type=CifData, required=False, help='structure with DDEC atomic spin moments')
 
     def prepare_for_submission(self, folder):
         """Create the input files from the input nodes passed
@@ -150,6 +151,9 @@ class DdecCalculation(CalcJob):
             OUTPUT_FILE,
             [self._DEFAULT_ADDITIONAL_RETRIEVE_LIST, '.', 0],
         ]
+
+        if self.inputs.spin:
+            calcinfo.retrieve_list.append('DDEC6_even_tempered_atomic_spin_moments.xyz')
 
         codeinfo = CodeInfo()
         codeinfo.cmdline_params = []
