@@ -31,7 +31,12 @@ class DdecParser(Parser):
         # list_of_files = out_folder._repository.list_object_names()  # pylint: disable=protected-access
         list_of_files = out_folder.list_object_names()
         
-        output_file = self.node.process_class._DEFAULT_OUTPUT_FILE
+        for f in list_of_files:
+            if f.endswith('.output'):
+                output_file = f
+                break
+
+        # output_file = self.node.process_class._DEFAULT_OUTPUT_FILE
 
         # We need at least the output file name as defined in calcs.py
         if output_file not in list_of_files:

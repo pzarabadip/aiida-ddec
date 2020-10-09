@@ -59,7 +59,7 @@ class DdecCalculation(CalcJob):
     """
 
     _DEFAULT_INPUT_FILE = 'job_control.txt'
-    _DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
+    # _DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
     _DEFAULT_ADDITIONAL_RETRIEVE_LIST = '*.xyz'  # pylint: disable=invalid-name
 
     @classmethod
@@ -129,7 +129,7 @@ class DdecCalculation(CalcJob):
             charge_density_folder = self.inputs.charge_density_folder
             comp_uuid = charge_density_folder.computer.uuid
             if 'aiida-ELECTRON_DENSITY-1_0.cube' in self.inputs.charge_density_folder.listdir():
-                # self._DEFAULT_OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
+                OUTPUT_FILE = 'valence_cube_DDEC_analysis.output'
                 remote_path = os.path.join(
                     charge_density_folder.get_remote_path(),
                     'aiida-ELECTRON_DENSITY-1_0.cube',
@@ -137,7 +137,7 @@ class DdecCalculation(CalcJob):
                 symlink = (comp_uuid, remote_path, 'valence_density.cube')
                 calcinfo.remote_symlink_list.append(symlink)
             elif 'AECCAR0' in self.inputs.charge_density_folder.listdir():
-                self._DEFAULT_OUTPUT_FILE = 'VASP_DDEC_analysis.output'
+                OUTPUT_FILE = 'VASP_DDEC_analysis.output'
                 vasp_specific_files = ['AECCAR0', 'AECCAR2', 'CHGCAR', 'POTCAR']
                 copy_list = [(comp_uuid, os.path.join(charge_density_folder.get_remote_path(), name), '.')
                      for name in charge_density_folder.listdir()
@@ -147,7 +147,7 @@ class DdecCalculation(CalcJob):
                 raise AttributeError('We currently only support CP2K and VASP generated potential files!')
         
         calcinfo.retrieve_list = [
-            self._DEFAULT_OUTPUT_FILE,
+            OUTPUT_FILE,
             [self._DEFAULT_ADDITIONAL_RETRIEVE_LIST, '.', 0],
         ]
 
